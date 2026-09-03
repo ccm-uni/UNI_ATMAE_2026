@@ -1,0 +1,18 @@
+# Specifies how all of the files will be formated
+
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AllowShortFunctionsOnASingleLine: Inline
+PointerAlignment: Right
+SpacesInParentheses: false
+
+MaxEmptyLinesToKeep: 2
+KeepEmptyLinesAtTheStartOfBlocks: false
+ColumnLimit: 80
+
+SortIncludes: false
