@@ -137,7 +137,7 @@ void setup() {
 
 
 void loop() {
-  // Updates the controller once a timer is done.
+  // Updates the controller data
   if (BP32.update()) {
     processControllers();
   }

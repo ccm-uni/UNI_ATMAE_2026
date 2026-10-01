@@ -10,13 +10,11 @@
 
 // Need this for the controllers to work
 ControllerPtr myControllers[BP32_MAX_GAMEPADS];
+// All controller data
+ControllerStruct controller;
 
 // Creates motordriver class connected to Serial2, with 5000us timout
 Basicmicro motorDriver(&Serial2, 5000);
-
-
-// All controller data
-ControllerStruct controller;
 
 
 void onConnectedController(ControllerPtr ctl);
