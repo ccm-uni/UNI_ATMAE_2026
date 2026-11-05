@@ -4,37 +4,19 @@
 
 #include <Arduino.h>
 
-// Easy way to reach the controller values
-struct ControllerStruct {
-  int
-    LX = 0,
-    LY = 0,
-    RX = 0,
-    RY = 0,
-    L2 = 0,
-    R2 = 0;
-
-  bool
-    dpad_up,
-    dpad_down,
-    dpad_left,
-    dpad_right;
-
-  bool
-    cross = false,
-    circle = false,
-    triangle = false,
-    square = false;
-
-  bool
-    L1 = false,
-    R1 = false;
-
-  bool
-    connected = false;
-
-  byte
-    colorBar[3] = {0, 0, 0};
-
-  byte deadzone = 16;
+// I/O mapping of the ESP pins to the output pins
+struct ESP_IO {
+  const static byte
+  out1 = 13,
+  out2 = 12,
+  out3 = 27,
+  out4 = 14,
+  out5 = 26,
+  out6 = 25,
+  out7 = 32,
+  out8 = 33,
+  out9 = 15,
+  out10 = 2,
+  out11 = 5,
+  out12 = 4;
 };
