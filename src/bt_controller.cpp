@@ -1,34 +1,37 @@
 #include "bt_controller.h"
-ControllerStruct controllerData;
+GamepadStruct gamepad;
 
 namespace {
 ControllerPtr myControllers[BP32_MAX_GAMEPADS] = {};
 
 
 void processGamepad(ControllerPtr ctl) {
-  ctl->setColorLED(controllerData.colorBar[0], controllerData.colorBar[1],
-                   controllerData.colorBar[2]);
+  ctl->setColorLED(gamepad.colorBar[0], gamepad.colorBar[1],
+                   gamepad.colorBar[2]);
 
-  controllerData.LX = ctl->axisX();
-  controllerData.LY = -ctl->axisY();
-  controllerData.RX = ctl->axisRX();
-  controllerData.RY = -ctl->axisRY();
+  gamepad.LX = ctl->axisX();
+  gamepad.LY = -ctl->axisY();
+  gamepad.RX = ctl->axisRX();
+  gamepad.RY = -ctl->axisRY();
 
-  controllerData.L2 = ctl->l2();
-  controllerData.R2 = ctl->r2();
+  gamepad.L1 = ctl->l1();
+  gamepad.R1 = ctl->r1();
 
-  controllerData.dpad_up    = ctl->dpad() & 0x01;
-  controllerData.dpad_down  = ctl->dpad() & 0x02;
-  controllerData.dpad_right = ctl->dpad() & 0x04;
-  controllerData.dpad_left  = ctl->dpad() & 0x08;
+  gamepad.L2 = ctl->l2();
+  gamepad.R2 = ctl->r2();
 
-  controllerData.cross    = ctl->a();
-  controllerData.circle   = ctl->b();
-  controllerData.triangle = ctl->y();
-  controllerData.square   = ctl->x();
+  gamepad.dpad_up    = ctl->dpad() & 0x01;
+  gamepad.dpad_down  = ctl->dpad() & 0x02;
+  gamepad.dpad_right = ctl->dpad() & 0x04;
+  gamepad.dpad_left  = ctl->dpad() & 0x08;
 
-  controllerData.L1 = ctl->l1();
-  controllerData.R1 = ctl->r1();
+  gamepad.cross    = ctl->a();
+  gamepad.circle   = ctl->b();
+  gamepad.triangle = ctl->y();
+  gamepad.square   = ctl->x();
+
+  gamepad.share   = ctl->miscSelect();
+  gamepad.options = ctl->miscStart();
 }
 } // namespace
 
@@ -69,7 +72,7 @@ void onDisconnectedController(ControllerPtr ctl) {
  * Go through connected controllers, and filter to make sure the data is good
  */
 void processControllers() {
-  controllerData.connected = false;
+  gamepad.connected = false;
 
   for (auto myController : myControllers) {
     if (myController == nullptr) {
@@ -82,7 +85,7 @@ void processControllers() {
       continue;
     } else {
       processGamepad(myController);
-      controllerData.connected = true;
+      gamepad.connected = true;
     }
   }
 }

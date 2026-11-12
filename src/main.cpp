@@ -1,20 +1,118 @@
 #include "main.h"
 
+
+/**
+ * Sets up all GPIO, and anything connected to physical pins
+ */
 void initGPIO() {
-  pinMode(gpio.out1, OUTPUT);
-  pinMode(gpio.out2, OUTPUT);
-  pinMode(gpio.out3, OUTPUT);
-  pinMode(gpio.out4, OUTPUT);
-  pinMode(gpio.out5, OUTPUT);
-  pinMode(gpio.out6, OUTPUT);
-  pinMode(gpio.out7, OUTPUT);
-  pinMode(gpio.out8, OUTPUT);
-  pinMode(gpio.out9, OUTPUT);
-  pinMode(gpio.out10, OUTPUT);
-  pinMode(gpio.out11, OUTPUT);
-  pinMode(gpio.out12, OUTPUT);
+  wrist.attach(gpio.out1);
+  claw.attach(gpio.out2);
+
+  pinMode(gpio.out3, INPUT);
+  pinMode(gpio.out4, INPUT);
+  pinMode(gpio.out5, INPUT);
+  pinMode(gpio.out6, INPUT);
+  pinMode(gpio.out7, INPUT);
+  pinMode(gpio.out8, INPUT);
+  pinMode(gpio.out9, INPUT);
+  pinMode(gpio.out10, INPUT);
+  pinMode(gpio.out11, INPUT);
+  pinMode(gpio.out12, INPUT);
 }
 
+
+/**
+ * Calculate the power for mechanum drive systems
+ */
+void calcMech(int y, int x, int rot) {
+  // Applies deadzones to inputs
+  if (y > -gamepad.deadzone && y < gamepad.deadzone)
+    y = 0;
+  if (x > -gamepad.deadzone && x < gamepad.deadzone)
+    x = 0;
+  if (rot > -gamepad.deadzone && rot < gamepad.deadzone)
+    rot = 0;
+
+  int speedMulti = 1;
+  if (robot.mediumSpeed) {
+    speedMulti = 2;
+  } else if (robot.fastSpeed) {
+    speedMulti = 4;
+  }
+
+  // Mechanum calculation matrix
+  robot.motor.FL_Motor = (y + x + rot) * speedMulti;
+  robot.motor.FR_Motor = (y - x - rot) * speedMulti;
+  robot.motor.BL_Motor = (y - x + rot) * speedMulti;
+  robot.motor.BR_Motor = (y + x - rot) * speedMulti;
+}
+
+
+/**
+ *  Adjust drive speed based on controller shoulder buttons
+ */
+void adjustDriveSpeed() {
+  if (gamepad.L1 || gamepad.R1) {
+    // Left trigger - Fast speed
+    if (gamepad.L1 && !robot.mediumSpeed) {
+      robot.fastSpeed     = true;
+      gamepad.colorBar[0] = 255;
+      gamepad.colorBar[1] = 0;
+      gamepad.colorBar[2] = 0;
+
+      // Right Trigger - Medium speed
+    } else if (gamepad.R1 && !robot.fastSpeed) {
+      robot.mediumSpeed   = true;
+      gamepad.colorBar[0] = 255;
+      gamepad.colorBar[1] = 127;
+      gamepad.colorBar[2] = 0;
+    }
+
+    // No trigger pressed - Slow speed
+  } else {
+    robot.mediumSpeed   = false;
+    robot.fastSpeed     = false;
+    gamepad.colorBar[0] = 0;
+    gamepad.colorBar[1] = 255;
+    gamepad.colorBar[2] = 0;
+  }
+}
+
+
+/**
+ * Set roboclaw outputs to calculated motor speeds
+ */
+void driveMotors(int powFL, int powFR, int powBL, int powBR) {
+  /*
+    // Working on this
+    // Trying to make it so that if any of the wheels are commanded to go more
+    than max speed, it scales back the other ones to the appropriate speed int
+    powMax = max(max(powFL, powFR), max(powBL, powBR));
+
+    if (powFL > maxSpeed || powFR > maxSpeed || powBL > maxSpeed || powBR >
+    maxSpeed) {
+
+    }
+    */
+
+
+  // FLMotor
+  motorDriver.SpeedM1(driver1Addr, powFL);
+
+  // FRMotor
+  motorDriver.SpeedM2(driver1Addr, powFR);
+
+  // BLMotor
+  motorDriver.SpeedM1(driver2Addr, powBL);
+
+  // BRMotor
+  motorDriver.SpeedM2(driver2Addr, powBR);
+}
+
+
+/**
+ * Runs once when the controller is booted
+ */
 void setup() {
   Serial.begin(115200);
   motorDriver.begin(38400); // Initialize the motor drivers
@@ -28,26 +126,98 @@ void setup() {
   BP32.setup(&onConnectedController, &onDisconnectedController);
 
   BP32.enableVirtualDevice(true);
-  // BP32.forgetBluetoothKeys(); // Call here if you want to clear paired
-  // devices.
+  // BP32.forgetBluetoothKeys(); // Call this if you want to clear paired
+  // gamepads.
 
   initGPIO();
 }
 
 
+/**
+ * Runs continuously
+ */
 void loop() {
   // Updates the controller data
   if (BP32.update()) {
     processControllers();
   }
 
-  if (controllerData.cross) {
-    controllerData.colorBar[0] = 255;
-    controllerData.colorBar[1] = 0;
-    controllerData.colorBar[2] = 0;
-  } else {
-    controllerData.colorBar[0] = 0;
-    controllerData.colorBar[1] = 255;
-    controllerData.colorBar[2] = 0;
+  adjustDriveSpeed();
+
+  // driveMotors(robot.motor.FL_Motor, robot.motor.FR_Motor,
+  // robot.motor.BL_Motor,
+  //             robot.motor.BR_Motor);
+
+  //printDebugController();
+  //getCycleTime();
+}
+
+
+/**
+ * To debug timing, prints out the cycle time between calls
+ */
+void getCycleTime() {
+  static unsigned long lastRun = 0;
+  const unsigned long  now     = millis();
+  Serial.print("Time per cycle: ");
+  Serial.println(now - lastRun);
+  lastRun = now;
+}
+
+
+/**
+ * Prints out a graphic of the controller for debugging
+ */
+void printDebugController() {
+  // Only print every 100 ms
+  static unsigned long lastRun    = 0;
+  const unsigned long  intervalMs = 400;
+  const unsigned long  now        = millis();
+  if (now - lastRun < intervalMs) {
+    return;
   }
+  lastRun = now;
+
+  static bool firstFrame = true;
+  if (firstFrame) {
+    Serial.write(0x1B);
+    Serial.print("[2J");
+    firstFrame = false;
+  }
+  Serial.write(0x1B);
+  Serial.print("[H");
+  Serial.printf("                      GAMEPAD: %s\n",
+                gamepad.connected ? "CONNECTED" : "DISCONNECTED");
+  Serial.printf("          __________/                        \\__________\n");
+  Serial.printf("         /                                              \\\n");
+  Serial.printf(
+      "        /                                                \\\n");
+  Serial.printf("       |  L1 [%s]  L2: %4d             R2: %4d  R1 [%s]  |\n",
+                gamepad.connected && gamepad.L1 ? "ON " : "   ",
+                gamepad.connected ? gamepad.L2 : 0,
+                gamepad.connected ? gamepad.R2 : 0,
+                gamepad.connected && gamepad.R1 ? "ON " : "   ");
+  Serial.printf("       |                                                |\n");
+  Serial.printf(
+      "       |      %c                                    [%c]   |\n",
+      gamepad.connected && gamepad.dpad_up ? '^' : ' ',
+      gamepad.connected && gamepad.triangle ? 'T' : ' ');
+  Serial.printf(
+      "       |   %c  +  %c                               [%c] [%c]  |\n",
+      gamepad.connected && gamepad.dpad_left ? '<' : ' ',
+      gamepad.connected && gamepad.dpad_right ? '>' : ' ',
+      gamepad.connected && gamepad.square ? 'S' : ' ',
+      gamepad.connected && gamepad.circle ? 'O' : ' ');
+  Serial.printf(
+      "       |      %c                                    [%c]   |\n",
+      gamepad.connected && gamepad.dpad_down ? 'v' : ' ',
+      gamepad.connected && gamepad.cross ? 'X' : ' ');
+  Serial.printf("       |                                                |\n");
+  Serial.printf(
+      "       |   Left stick: X %4d Y %4d   Right: X %4d Y %4d |\n",
+      gamepad.connected ? gamepad.LX : 0, gamepad.connected ? gamepad.LY : 0,
+      gamepad.connected ? gamepad.RX : 0, gamepad.connected ? gamepad.RY : 0);
+  Serial.printf("        \\                                              /\n");
+  Serial.printf("         \\__________                        __________/\n");
+  Serial.printf("                    \\______________________/\n");
 }
