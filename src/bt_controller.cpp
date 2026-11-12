@@ -17,20 +17,20 @@ void processGamepad(ControllerPtr ctl) {
   controllerData.L2 = ctl->l2();
   controllerData.R2 = ctl->r2();
 
-  controllerData.dpad_up = ctl->dpad() & 0x01;
-  controllerData.dpad_down = ctl->dpad() & 0x02;
+  controllerData.dpad_up    = ctl->dpad() & 0x01;
+  controllerData.dpad_down  = ctl->dpad() & 0x02;
   controllerData.dpad_right = ctl->dpad() & 0x04;
-  controllerData.dpad_left = ctl->dpad() & 0x08;
+  controllerData.dpad_left  = ctl->dpad() & 0x08;
 
-  controllerData.cross = ctl->a();
-  controllerData.circle = ctl->b();
+  controllerData.cross    = ctl->a();
+  controllerData.circle   = ctl->b();
   controllerData.triangle = ctl->y();
-  controllerData.square = ctl->x();
+  controllerData.square   = ctl->x();
 
   controllerData.L1 = ctl->l1();
   controllerData.R1 = ctl->r1();
 }
-}  // namespace
+} // namespace
 
 void onConnectedController(ControllerPtr ctl) {
   for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
@@ -64,6 +64,10 @@ void onDisconnectedController(ControllerPtr ctl) {
       "CALLBACK: Controller disconnected, but not found in myControllers");
 }
 
+
+/**
+ * Go through connected controllers, and filter to make sure the data is good
+ */
 void processControllers() {
   controllerData.connected = false;
 
@@ -74,10 +78,8 @@ void processControllers() {
 
     if (!myController->isConnected()) {
       Serial.println("ERROR: Controller NOT Connected");
-    } else if (!myController->hasData()) {
-      Serial.println("ERROR: Controller has no Data");
-    } else if (!myController->isGamepad()) {
-      Serial.println("ERROR: Controller is NOT a Gamepad");
+    } else if (!myController->isGamepad() || !myController->hasData()) {
+      continue;
     } else {
       processGamepad(myController);
       controllerData.connected = true;

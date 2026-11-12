@@ -11,15 +11,10 @@
 
 #include "structs_n_stuff.cpp"
 
+// GPIO map struct
 ESP_IO gpio;
 
 // Creates motordriver class connected to Serial2, with 5000us timout
 Basicmicro motorDriver(&Serial2, 5000);
-
-
-void onConnectedController(ControllerPtr ctl);
-void onDisconnectedController(ControllerPtr ctl);
-void processControllers();
-void processGamepad(ControllerPtr ctl);
 
 #endif

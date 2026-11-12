@@ -27,8 +27,9 @@ void setup() {
   // Setup the Bluepad32 callbacks
   BP32.setup(&onConnectedController, &onDisconnectedController);
 
-  BP32.enableVirtualDevice(false);
-  // Call BP32.forgetBluetoothKeys() here if you want to clear paired devices.
+  BP32.enableVirtualDevice(true);
+  // BP32.forgetBluetoothKeys(); // Call here if you want to clear paired
+  // devices.
 
   initGPIO();
 }
@@ -38,5 +39,15 @@ void loop() {
   // Updates the controller data
   if (BP32.update()) {
     processControllers();
+  }
+
+  if (controllerData.cross) {
+    controllerData.colorBar[0] = 255;
+    controllerData.colorBar[1] = 0;
+    controllerData.colorBar[2] = 0;
+  } else {
+    controllerData.colorBar[0] = 0;
+    controllerData.colorBar[1] = 255;
+    controllerData.colorBar[2] = 0;
   }
 }
