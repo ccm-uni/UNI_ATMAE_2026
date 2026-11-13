@@ -6,6 +6,8 @@
 
 // I/O mapping of the ESP pins to the output pins
 struct ESP_IO {
+
+  // clang-format off
   const static byte
     out1 = 13,
     out2 = 12,
@@ -19,6 +21,7 @@ struct ESP_IO {
     out10 = 2,
     out11 = 5,
     out12 = 4;
+
 };
 
 struct Robot {
@@ -37,3 +40,5 @@ struct Robot {
   bool mediumSpeed = false;
   bool fastSpeed = false;
 };
+
+// clang-format on

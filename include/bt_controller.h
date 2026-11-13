@@ -1,31 +1,35 @@
 #pragma once
 #include <Bluepad32.h>
 
+// clang-format off
 struct GamepadStruct {
-  int LX = 0;
-  int LY = 0;
-  int RX = 0;
-  int RY = 0;
-  int L2 = 0;
-  int R2 = 0;
+  int
+    LX = 0,
+    LY = 0,
+    RX = 0,
+    RY = 0,
+    L2 = 0,
+    R2 = 0;
 
-  bool dpad_up    = false;
-  bool dpad_down  = false;
-  bool dpad_left  = false;
-  bool dpad_right = false;
+  bool
+    dpad_up = false,
+    dpad_down = false,
+    dpad_left = false,
+    dpad_right = false,
 
-  bool cross    = false;
-  bool circle   = false;
-  bool triangle = false;
-  bool square   = false;
+    cross = false,
+    circle = false,
+    triangle = false,
+    square = false,
 
-  bool L1 = false;
-  bool R1 = false;
+    L1 = false,
+    R1 = false,
+
+    share   = false,
+    options = false;
+
 
   bool connected = false;
-
-  bool share   = false;
-  bool options = false;
 
   // RGB color bar
   byte colorBar[3] = {0, 0, 0};
@@ -33,7 +37,7 @@ struct GamepadStruct {
   // Deadzone used for joysticks
   byte deadzone = 16;
 };
-
+// clang-format on
 
 // Properly defined in bt_controller.cpp
 // Stores the current state of the controller

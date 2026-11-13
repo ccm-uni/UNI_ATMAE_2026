@@ -116,11 +116,17 @@ void driveMotors(int powFL, int powFR, int powBL, int powBR) {
 void setup() {
   Serial.begin(115200);
   motorDriver.begin(38400); // Initialize the motor drivers
+  Wire.begin(gpio.out11, gpio.out12);
 
   Serial.printf("Firmware: %s\n", BP32.firmwareVersion());
   const uint8_t *addr = BP32.localBdAddress();
-  Serial.printf("BD Addr: %2X:%2X:%2X:%2X:%2X:%2X\n", addr[0], addr[1], addr[2],
-                addr[3], addr[4], addr[5]);
+  Serial.printf("BD Addr: %2X:%2X:%2X:%2X:%2X:%2X\n",
+                addr[0],
+                addr[1],
+                addr[2],
+                addr[3],
+                addr[4],
+                addr[5]);
 
   // Setup the Bluepad32 callbacks
   BP32.setup(&onConnectedController, &onDisconnectedController);
@@ -128,6 +134,8 @@ void setup() {
   BP32.enableVirtualDevice(true);
   // BP32.forgetBluetoothKeys(); // Call this if you want to clear paired
   // gamepads.
+
+  initColor();
 
   initGPIO();
 }
@@ -144,12 +152,16 @@ void loop() {
 
   adjustDriveSpeed();
 
-  // driveMotors(robot.motor.FL_Motor, robot.motor.FR_Motor,
-  // robot.motor.BL_Motor,
-  //             robot.motor.BR_Motor);
 
-  //printDebugController();
-  //getCycleTime();
+  runColor();
+
+  driveMotors(robot.motor.FL_Motor,
+              robot.motor.FR_Motor,
+              robot.motor.BL_Motor,
+              robot.motor.BR_Motor);
+
+  // printDebugController();
+  getCycleTime();
 }
 
 
@@ -213,10 +225,11 @@ void printDebugController() {
       gamepad.connected && gamepad.dpad_down ? 'v' : ' ',
       gamepad.connected && gamepad.cross ? 'X' : ' ');
   Serial.printf("       |                                                |\n");
-  Serial.printf(
-      "       |   Left stick: X %4d Y %4d   Right: X %4d Y %4d |\n",
-      gamepad.connected ? gamepad.LX : 0, gamepad.connected ? gamepad.LY : 0,
-      gamepad.connected ? gamepad.RX : 0, gamepad.connected ? gamepad.RY : 0);
+  Serial.printf("       |   Left stick: X %4d Y %4d   Right: X %4d Y %4d |\n",
+                gamepad.connected ? gamepad.LX : 0,
+                gamepad.connected ? gamepad.LY : 0,
+                gamepad.connected ? gamepad.RX : 0,
+                gamepad.connected ? gamepad.RY : 0);
   Serial.printf("        \\                                              /\n");
   Serial.printf("         \\__________                        __________/\n");
   Serial.printf("                    \\______________________/\n");

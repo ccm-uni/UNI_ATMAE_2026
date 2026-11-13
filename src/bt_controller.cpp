@@ -2,12 +2,15 @@
 GamepadStruct gamepad;
 
 namespace {
-ControllerPtr myControllers[BP32_MAX_GAMEPADS] = {};
+ControllerPtr myGamepads[BP32_MAX_GAMEPADS] = {};
 
 
+/**
+ * Updates gamepad struct with current gamepad data
+ */
 void processGamepad(ControllerPtr ctl) {
-  ctl->setColorLED(gamepad.colorBar[0], gamepad.colorBar[1],
-                   gamepad.colorBar[2]);
+  ctl->setColorLED(
+      gamepad.colorBar[0], gamepad.colorBar[1], gamepad.colorBar[2]);
 
   gamepad.LX = ctl->axisX();
   gamepad.LY = -ctl->axisY();
@@ -37,15 +40,16 @@ void processGamepad(ControllerPtr ctl) {
 
 void onConnectedController(ControllerPtr ctl) {
   for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
-    if (myControllers[i] == nullptr) {
+    if (myGamepads[i] == nullptr) {
       Serial.printf("CALLBACK: Controller is connected, index=%d\n", i);
 
       ControllerProperties properties = ctl->getProperties();
       Serial.printf("Controller model: %s, VID=0x%04x, PID=0x%04x\n",
-                    ctl->getModelName().c_str(), properties.vendor_id,
+                    ctl->getModelName().c_str(),
+                    properties.vendor_id,
                     properties.product_id);
 
-      myControllers[i] = ctl;
+      myGamepads[i] = ctl;
       return;
     }
   }
@@ -54,17 +58,18 @@ void onConnectedController(ControllerPtr ctl) {
       "CALLBACK: Controller connected, but could not find empty slot");
 }
 
+
 void onDisconnectedController(ControllerPtr ctl) {
   for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
-    if (myControllers[i] == ctl) {
+    if (myGamepads[i] == ctl) {
       Serial.printf("CALLBACK: Controller disconnected from index=%d\n", i);
-      myControllers[i] = nullptr;
+      myGamepads[i] = nullptr;
       return;
     }
   }
 
   Serial.println(
-      "CALLBACK: Controller disconnected, but not found in myControllers");
+      "CALLBACK: Controller disconnected, but not found in myGamepads");
 }
 
 
@@ -74,7 +79,7 @@ void onDisconnectedController(ControllerPtr ctl) {
 void processControllers() {
   gamepad.connected = false;
 
-  for (auto myController : myControllers) {
+  for (auto myController : myGamepads) {
     if (myController == nullptr) {
       continue;
     }

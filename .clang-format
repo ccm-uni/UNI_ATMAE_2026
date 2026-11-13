@@ -15,4 +15,6 @@ MaxEmptyLinesToKeep: 2
 KeepEmptyLinesAtTheStartOfBlocks: false
 ColumnLimit: 80
 
+BinPackArguments: false
+
 SortIncludes: false
