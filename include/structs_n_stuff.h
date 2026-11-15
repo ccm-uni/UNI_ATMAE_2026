@@ -32,9 +32,17 @@ struct Robot {
       BL_Motor = 0,
       BR_Motor = 0;
   };
-  Motor motor;
+  Motor motor; // Drive motors
 
-  bool mediumSpeed = false;
+  struct Servos
+  {
+    Servo wrist;
+    Servo claw;
+  };
+  Servos servo; // All the servos
+  
+
+  bool slowSpeed = false;
   bool fastSpeed = false;
 };
 

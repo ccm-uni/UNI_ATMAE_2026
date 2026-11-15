@@ -9,7 +9,7 @@
 #include <ESP32Servo.h>
 
 #include "bt_controller.h"
-#include "structs_n_stuff.cpp"
+#include "structs_n_stuff.h"
 #include "color.h"
 
 
@@ -25,13 +25,10 @@ Robot  robot; // All physical stuff on the robot
 Basicmicro motorDriver(&Serial2, 5000);
 
 
-Servo wrist, claw;
-
-
 void initGPIO();
-void calcMech();
 void adjustDriveSpeed();
+void calcMech();
 void driveMotors(int powFL, int powFR, int powBL, int powBR);
-void liftCtl();
+void liftCtl(int pow);
 
 #endif

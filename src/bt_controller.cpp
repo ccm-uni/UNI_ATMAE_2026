@@ -20,8 +20,8 @@ void processGamepad(ControllerPtr ctl) {
   gamepad.L1 = ctl->l1();
   gamepad.R1 = ctl->r1();
 
-  gamepad.L2 = ctl->l2();
-  gamepad.R2 = ctl->r2();
+  gamepad.L2 = ctl->brake();
+  gamepad.R2 = ctl->throttle();
 
   gamepad.dpad_up    = ctl->dpad() & 0x01;
   gamepad.dpad_down  = ctl->dpad() & 0x02;

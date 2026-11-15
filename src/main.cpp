@@ -10,8 +10,9 @@ bool              liftPositionInitialized = false;
  * Sets up all GPIO, and anything connected to physical pins
  */
 void initGPIO() {
-  wrist.attach(gpio.out1);
-  claw.attach(gpio.out2);
+  robot.servo.wrist.attach(gpio.out1);
+
+  robot.servo.claw.attach(gpio.out2);
 
   pinMode(gpio.out3, INPUT);
   pinMode(gpio.out4, INPUT);
@@ -23,6 +24,38 @@ void initGPIO() {
   pinMode(gpio.out10, INPUT);
   pinMode(gpio.out11, INPUT);
   pinMode(gpio.out12, INPUT);
+}
+
+
+void setColorBar(int R, int G, int B) {
+  gamepad.colorBar[0] = R;
+  gamepad.colorBar[1] = G;
+  gamepad.colorBar[2] = B;
+}
+
+
+/**
+ *  Adjust drive speed based on controller shoulder buttons
+ */
+void adjustDriveSpeed() {
+  if (gamepad.L1 || gamepad.R1) {
+    // Left trigger - Fast speed
+    if (gamepad.L1 && !robot.slowSpeed) {
+      robot.fastSpeed = true;
+      setColorBar(255, 0, 0);
+
+      // Right Trigger - Slow speed
+    } else if (gamepad.R1 && !robot.fastSpeed) {
+      robot.slowSpeed = true;
+      setColorBar(0, 0, 255);
+    }
+
+    // No trigger pressed - Medium speed
+  } else {
+    robot.slowSpeed = false;
+    robot.fastSpeed   = false;
+    setColorBar(0, 255, 0);
+  }
 }
 
 
@@ -38,49 +71,18 @@ void calcMech(int y, int x, int rot) {
   if (rot > -gamepad.deadzone && rot < gamepad.deadzone)
     rot = 0;
 
-  int speedMulti = 1;
-  if (robot.mediumSpeed) {
-    speedMulti = 2;
+  float speedMulti = 1;
+  if (robot.slowSpeed) {
+    speedMulti = 0.3;
   } else if (robot.fastSpeed) {
-    speedMulti = 4;
+    speedMulti = 2;
   }
 
   // Mechanum calculation matrix
-  robot.motor.FL_Motor = (y + x + rot) * speedMulti;
-  robot.motor.FR_Motor = (y - x - rot) * speedMulti;
-  robot.motor.BL_Motor = (y - x + rot) * speedMulti;
-  robot.motor.BR_Motor = (y + x - rot) * speedMulti;
-}
-
-
-/**
- *  Adjust drive speed based on controller shoulder buttons
- */
-void adjustDriveSpeed() {
-  if (gamepad.L1 || gamepad.R1) {
-    // Left trigger - Fast speed
-    if (gamepad.L1 && !robot.mediumSpeed) {
-      robot.fastSpeed     = true;
-      gamepad.colorBar[0] = 255;
-      gamepad.colorBar[1] = 0;
-      gamepad.colorBar[2] = 0;
-
-      // Right Trigger - Medium speed
-    } else if (gamepad.R1 && !robot.fastSpeed) {
-      robot.mediumSpeed   = true;
-      gamepad.colorBar[0] = 255;
-      gamepad.colorBar[1] = 127;
-      gamepad.colorBar[2] = 0;
-    }
-
-    // No trigger pressed - Slow speed
-  } else {
-    robot.mediumSpeed   = false;
-    robot.fastSpeed     = false;
-    gamepad.colorBar[0] = 0;
-    gamepad.colorBar[1] = 255;
-    gamepad.colorBar[2] = 0;
-  }
+  robot.motor.FL_Motor = (int)((y + x + rot) * speedMulti);
+  robot.motor.FR_Motor = (int)((y - x - rot) * speedMulti);
+  robot.motor.BL_Motor = (int)((y - x + rot) * speedMulti);
+  robot.motor.BR_Motor = (int)((y + x - rot) * speedMulti);
 }
 
 
@@ -101,9 +103,6 @@ void driveMotors(int powFL, int powFR, int powBL, int powBR) {
     */
 
 
-  // FLMotor
-
-
   motorDriver.SpeedM1(driver1Addr, powFL);
 
   // FRMotor
@@ -120,7 +119,9 @@ void driveMotors(int powFL, int powFR, int powBL, int powBR) {
 /**
  *
  */
-void liftCtl() {}
+void liftCtl(int pow) {
+  motorDriver.SpeedM1(driver3Addr, pow);
+}
 
 
 /**
@@ -162,12 +163,23 @@ void loop() {
     processControllers();
   }
 
-  liftCtl();
+  // Move the lift up and down based on the dpad
+  liftCtl(gamepad.dpad_up ? 511 : (gamepad.dpad_down ? -512 : 0));
+
+
+  // Control for the servos on the claw
+  robot.servo.claw.write(gamepad.cross ? 90 : 0);
+
+  robot.servo.wrist.write(map(gamepad.L2, 0, 1023, 400, 90));
+
+  Serial.print(gamepad.L2);
+  Serial.print(", ");
+  Serial.println(map(gamepad.L2, 0, 1023, 40, 90));
 
   // runColor();
 
-  calcMech(gamepad.LY, gamepad.LX, gamepad.RX);
   adjustDriveSpeed();
+  calcMech(gamepad.LY, gamepad.LX, gamepad.RX);
   driveMotors(robot.motor.FL_Motor,
               robot.motor.FR_Motor,
               robot.motor.BL_Motor,
