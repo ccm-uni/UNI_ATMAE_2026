@@ -13,8 +13,9 @@
 #include "color.h"
 
 
-#define driver1Addr 0x80 // RoboClaw 1 Address
-#define driver2Addr 0x81 // RoboClaw 2 Address
+#define driver1Addr 128 // RoboClaw 1 Address
+#define driver2Addr 129 // RoboClaw 2 Address
+#define driver3Addr 130 // RoboClaw 3 Address
 
 
 ESP_IO gpio;  // GPIO map struct
@@ -31,8 +32,6 @@ void initGPIO();
 void calcMech();
 void adjustDriveSpeed();
 void driveMotors(int powFL, int powFR, int powBL, int powBR);
-
-void getCycleTime();
-void printDebugController();
+void liftCtl();
 
 #endif

@@ -1,5 +1,10 @@
 #include "main.h"
 
+namespace {
+constexpr int32_t liftPositionStep        = 100;
+bool              liftPositionInitialized = false;
+} // namespace
+
 
 /**
  * Sets up all GPIO, and anything connected to physical pins
@@ -97,6 +102,8 @@ void driveMotors(int powFL, int powFR, int powBL, int powBR) {
 
 
   // FLMotor
+
+
   motorDriver.SpeedM1(driver1Addr, powFL);
 
   // FRMotor
@@ -108,6 +115,12 @@ void driveMotors(int powFL, int powFR, int powBL, int powBR) {
   // BRMotor
   motorDriver.SpeedM2(driver2Addr, powBR);
 }
+
+
+/**
+ *
+ */
+void liftCtl() {}
 
 
 /**
@@ -135,8 +148,7 @@ void setup() {
   // BP32.forgetBluetoothKeys(); // Call this if you want to clear paired
   // gamepads.
 
-  initColor();
-
+  // initColor();
   initGPIO();
 }
 
@@ -150,18 +162,19 @@ void loop() {
     processControllers();
   }
 
+  liftCtl();
+
+  // runColor();
+
+  calcMech(gamepad.LY, gamepad.LX, gamepad.RX);
   adjustDriveSpeed();
-
-
-  runColor();
-
   driveMotors(robot.motor.FL_Motor,
               robot.motor.FR_Motor,
               robot.motor.BL_Motor,
               robot.motor.BR_Motor);
 
   // printDebugController();
-  getCycleTime();
+  // getCycleTime();
 }
 
 

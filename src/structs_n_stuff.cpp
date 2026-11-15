@@ -34,9 +34,6 @@ struct Robot {
   };
   Motor motor;
 
-  int16_t test = 0;
-
-
   bool mediumSpeed = false;
   bool fastSpeed = false;
 };
