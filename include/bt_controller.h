@@ -1,4 +1,5 @@
-#pragma once
+#ifndef bt_controller_h
+#define bt_controller_h
 #include <Bluepad32.h>
 
 // clang-format off
@@ -46,3 +47,5 @@ extern GamepadStruct gamepad;
 void onConnectedController(ControllerPtr ctl);
 void onDisconnectedController(ControllerPtr ctl);
 void processControllers();
+
+#endif

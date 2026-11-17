@@ -26,9 +26,13 @@ Basicmicro motorDriver(&Serial2, 5000);
 
 
 void initGPIO();
+void setColorBar();
 void adjustDriveSpeed();
 void calcMech();
 void driveMotors(int powFL, int powFR, int powBL, int powBR);
 void liftCtl(int pow);
+
+void getCycleTime();
+void printDebugController();
 
 #endif

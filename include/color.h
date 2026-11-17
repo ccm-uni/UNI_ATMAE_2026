@@ -1,3 +1,6 @@
+#ifndef color_h
+#define color_h
+
 #include <Wire.h>
 #include "Adafruit_TCS34725.h"
 
@@ -14,3 +17,5 @@ extern Adafruit_TCS34725 tcs;
 
 void initColor();
 void runColor();
+
+#endif

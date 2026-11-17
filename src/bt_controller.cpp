@@ -36,8 +36,15 @@ void processGamepad(ControllerPtr ctl) {
   gamepad.share   = ctl->miscSelect();
   gamepad.options = ctl->miscStart();
 }
-} // namespace
 
+} // namespace
+// IDK why it cant be after all the other functions, but it breaks if I move it
+// there.
+
+
+/**
+ * Runs when a gamepad connects to the controller
+ */
 void onConnectedController(ControllerPtr ctl) {
   for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
     if (myGamepads[i] == nullptr) {
@@ -59,6 +66,9 @@ void onConnectedController(ControllerPtr ctl) {
 }
 
 
+/**
+ * Runs when a gamepad disconnects from the controller
+ */
 void onDisconnectedController(ControllerPtr ctl) {
   for (int i = 0; i < BP32_MAX_GAMEPADS; i++) {
     if (myGamepads[i] == ctl) {

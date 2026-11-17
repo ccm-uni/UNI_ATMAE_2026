@@ -27,6 +27,7 @@ void initGPIO() {
 }
 
 
+/***/
 void setColorBar(int R, int G, int B) {
   gamepad.colorBar[0] = R;
   gamepad.colorBar[1] = G;
@@ -53,7 +54,7 @@ void adjustDriveSpeed() {
     // No trigger pressed - Medium speed
   } else {
     robot.slowSpeed = false;
-    robot.fastSpeed   = false;
+    robot.fastSpeed = false;
     setColorBar(0, 255, 0);
   }
 }
@@ -87,7 +88,7 @@ void calcMech(int y, int x, int rot) {
 
 
 /**
- * Set roboclaw outputs to calculated motor speeds
+ * Send calculated wheel powers to Roboclaws
  */
 void driveMotors(int powFL, int powFR, int powBL, int powBR) {
   /*
@@ -116,9 +117,7 @@ void driveMotors(int powFL, int powFR, int powBL, int powBR) {
 }
 
 
-/**
- *
- */
+/***/
 void liftCtl(int pow) {
   motorDriver.SpeedM1(driver3Addr, pow);
 }
