@@ -32,6 +32,9 @@ void calcMech();
 void driveMotors(int powFL, int powFR, int powBL, int powBR);
 void liftCtl(int pow);
 
+void autoMode();
+void setServos();
+
 void getCycleTime();
 void printDebugController();
 

@@ -123,6 +123,22 @@ void liftCtl(int pow) {
 }
 
 
+void autoMode() {
+  while (!gamepad.cross && !gamepad.circle && !gamepad.square &&
+         !gamepad.triangle) {
+    // driveMotors();
+  }
+
+  return;
+}
+
+
+void setServos() {
+  robot.servo.wrist.write(robot.servo.wristPos);
+  robot.servo.claw.write(robot.servo.clawPos);
+}
+
+
 /**
  * Runs once when the controller is booted
  */
@@ -148,7 +164,7 @@ void setup() {
   // BP32.forgetBluetoothKeys(); // Call this if you want to clear paired
   // gamepads.
 
-  // initColor();
+  initColor();
   initGPIO();
 }
 
@@ -162,20 +178,23 @@ void loop() {
     processControllers();
   }
 
+
   // Move the lift up and down based on the dpad
   liftCtl(gamepad.dpad_up ? 511 : (gamepad.dpad_down ? -512 : 0));
 
 
-  // Control for the servos on the claw
-  robot.servo.claw.write(gamepad.cross ? 90 : 0);
-
-  robot.servo.wrist.write(map(gamepad.L2, 0, 1023, 400, 90));
-
-  Serial.print(gamepad.L2);
-  Serial.print(", ");
-  Serial.println(map(gamepad.L2, 0, 1023, 40, 90));
+  // Control for the servos on the wrist and claw
+  robot.servo.wristPos = map(gamepad.L2, 0, 1023, 100, 45);
+  robot.servo.clawPos  = map(gamepad.R2, 0, 1023, 135, 0);
 
   // runColor();
+
+  /*
+    if (gamepad.share && gamepad.options) {
+      autoMode();
+    }
+  */
+
 
   adjustDriveSpeed();
   calcMech(gamepad.LY, gamepad.LX, gamepad.RX);
@@ -183,6 +202,36 @@ void loop() {
               robot.motor.FR_Motor,
               robot.motor.BL_Motor,
               robot.motor.BR_Motor);
+
+
+  // Hold the robot in starting position until Circle is pressed
+  if (gamepad.square) {
+    robot.goodToGo = true;
+  } else if (gamepad.triangle) {
+    robot.goodToGo = false;
+  }
+  if (!robot.goodToGo) {
+    robot.servo.wristPos = 150;
+    robot.servo.clawPos  = 75;
+  }
+
+
+  if (gamepad.circle) {
+    robot.servo.wristPos = 80;
+  }
+
+
+  // Write current servo positions
+  setServos();
+
+  Serial.print(gamepad.L2);
+  Serial.print(", ");
+  Serial.print(robot.servo.wristPos);
+  Serial.print(", ");
+  Serial.print(gamepad.R2);
+  Serial.print(", ");
+  Serial.println(robot.servo.clawPos);
+
 
   // printDebugController();
   // getCycleTime();

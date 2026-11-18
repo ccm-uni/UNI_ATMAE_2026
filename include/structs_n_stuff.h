@@ -38,12 +38,31 @@ struct Robot {
   {
     Servo wrist;
     Servo claw;
+    int wristPos = 0;
+    int clawPos = 0;
+
+    bool wristUp = true;
   };
   Servos servo; // All the servos
+
+  struct ColorSensors{
+    int L_Red = 0;
+    int L_Green = 0;
+    int L_Blue = 0;
+    int L_Wht = 0;
+
+    int R_Red = 0;
+    int R_Green = 0;
+    int R_Blue = 0;
+    int R_Wht = 0;
+  };
+  ColorSensors colors;
   
 
   bool slowSpeed = false;
   bool fastSpeed = false;
+
+  bool goodToGo = false;
 };
 
 // clang-format on
